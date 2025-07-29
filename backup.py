@@ -1,56 +1,64 @@
 import pygame
 from Player import Player
 
+#Inicio e Musica
 pygame.init()
-pygame.display.set_caption("ARmys Crashed")
+pygame.mixer.init()
+# pygame.mixer.music.load("Sons/music.wav")  
+# pygame.mixer.music.play(-1)  
 
-#Formar a Janela e Marcar o FpS
+#Definir o nome do jogo!
+pygame.display.set_caption("Armys Crashed")
+
+#Formar a Janela e Marcar o FpS!
 screen = pygame.display.set_mode((1280,720))    
 Clock = pygame.time.Clock()
 
-# Fontes para menu
-fonte_titulo = pygame.font.SysFont(None, 100)
+# Fontes para o código
+fonte_titulo = pygame.font.SysFont(None, 150)
 fonte_botao = pygame.font.SysFont(None, 37)
 fonte_pontuação = pygame.font.SysFont(None, 50)
 fonte_vida = pygame.font.SysFont(None,50)
-#fonte_over = pygame.font.SysFont(None,150)
-# fonte_game_over = pygame.font.SysFont("Arial", 64)
-# fonte_aviso_game_over = pygame.font.SysFont("Arial", 32)
+fonte_game_over = pygame.font.SysFont(None,150)
+fonte_aviso_game_over = pygame.font.SysFont(None,100)
 
+# Códigos para o Game Over
+fim_de_jogo = False
+tela_game_over = pygame.Surface((1280, 720), pygame.SRCALPHA)
+tela_game_over.fill((0, 0, 0))  # fundo escuro com transparência
+mostrar_game_over = fonte_game_over.render("GAME OVER", True, "Red")
+aviso_game_over = fonte_aviso_game_over.render("Pressione R para reiniciar", True, "White")
+som_game_over_tocado = False
+estado_anterior = None
+
+def desenha_game_over(screen):
+    screen.blit(tela_game_over, (0, 0))
+    screen.blit(mostrar_game_over, (310, 170))
+    screen.blit(aviso_game_over, (220, 300))
 
 # Surface (Objetos da tela)
 surface = pygame.Surface((200,200))
 fundo = pygame.image.load("Imagens/Fundo_8.png").convert_alpha()
 boneco = pygame.image.load("Imagens/Hero.png").convert_alpha()
-flecha = pygame.image.load("Imagens/Obstaculos/Arrow1.png").convert_alpha()
 fundo_menu = pygame.image.load("Imagens/Fundo_blur.png").convert_alpha()
-bala = pygame.image.load("Imagens/Assets_Balas/Bala_1.png").convert_alpha()
+bala_RIGHT = pygame.image.load("Imagens/Assets_Balas/BALA_LEFT.png").convert_alpha()
+bala_LEFT = pygame.image.load("Imagens/Assets_Balas/BALA_RIGHT.png").convert_alpha()
+bala_UPSIDE = pygame.image.load("Imagens/Assets_Balas/BALA_UPSIDE.png").convert_alpha()
+bala_DOWN = pygame.image.load("Imagens/Assets_Balas/BALA_DOWN.png").convert_alpha()
 
 #Pontuação
 pontuação = 0
 vidas = 3
 
-# def TESTE (n1):
-    # Fim de jogo
-    # fim_de_jogo = False
-    # tela_game_over = pygame.Surface((1280, 720), pygame.SRCALPHA)
-    # tela_game_over.fill((0, 0, 0, 200))
-
-    # mostrar_game_over = fonte_game_over.render("GAME OVER", False, "White")
-    # aviso_game_over = fonte_aviso_game_over.render("Pressione R para reiniciar", False, "White")
-
-    #Função para desenhar a tela
-    # def desenha_game_over(screen):
-    #     screen.blit(tela_game_over, (0, 0))
-    #     screen.blit(mostrar_game_over, (300, 200))
-    #     screen.blit(aviso_game_over, (250, 300))
-
 #Convertendo o tamanho da imagem 
 fundo = pygame.transform.scale(fundo,(1280,720))
 boneco = pygame.transform.scale(boneco,(180,180))
-flecha = pygame.transform.scale(flecha,(100,100))
 fundo_menu = pygame.transform.scale(fundo_menu,(1280,720))
-bala = pygame.transform.scale(bala,(80,40))
+bala_RIGHT = pygame.transform.scale(bala_RIGHT,(90,50))
+bala_LEFT = pygame.transform.scale(bala_LEFT,(90,50))
+bala_UPSIDE = pygame.transform.scale(bala_UPSIDE,(50,90))
+bala_DOWN = pygame.transform.scale(bala_DOWN,(50,90))
+
 
 #Personagem
 boneco = Player()
@@ -58,14 +66,17 @@ chao_y = 410
 
 
 #Criando os Retângulos
-flechaRect = flecha.get_rect(bottomleft = (-100,600))
-# bonecoRect = boneco.get_rect(center = (601,498))
-balaRect = bala.get_rect(bottomright = (1300,300))
+bala_RIGHT_Rect = bala_RIGHT.get_rect(bottomright = (1300,600))
+bala_LEFT_Rect = bala_LEFT.get_rect(bottomright = (1300,300))
+bala_UPSIDE_Rect = bala_UPSIDE.get_rect(midbottom = (1100,1500))
+bala_DOWN_Rect = bala_DOWN.get_rect(midtop = (300,-300))
 
 #Colisão precisa( Formando mascara, descarta os tranparentes)
 # boneco_mask = pygame.mask.from_surface(boneco)
-flecha_mask = pygame.mask.from_surface(flecha)
-bala_mask = pygame.mask.from_surface(bala)
+bala_RIGHT_mask = pygame.mask.from_surface(bala_RIGHT)
+bala_LEFT_mask = pygame.mask.from_surface(bala_LEFT)
+bala_UPSIDE_mask = pygame.mask.from_surface(bala_UPSIDE)
+bala_DOWN_mask = pygame.mask.from_surface(bala_DOWN)
 boneco_mask = pygame.mask.from_surface(boneco.current_image)
 
 #Gravidade e estado inicial
@@ -102,26 +113,40 @@ while True:
 
     elif estado_do_jogo == "jogo":
 
-        #JOGO
+        
         #Adicionar elementos na tela
         #Direita = aumenta o x
         #Baixo = aumenta o y
         screen.blit(surface,(100,100))
         screen.blit(fundo,(0,0))
-        # screen.blit(boneco, bonecoRect)
         boneco.draw(screen)
-        screen.blit(flecha, flechaRect)
-        screen.blit(bala,balaRect)
+        screen.blit(bala_LEFT,bala_LEFT_Rect)
+        screen.blit(bala_RIGHT,bala_RIGHT_Rect)
+        screen.blit(bala_UPSIDE,bala_UPSIDE_Rect)
+        screen.blit(bala_DOWN,bala_DOWN_Rect)
 
-        #Movimento Flecha
-        flechaRect.x += 5
-        if flechaRect.x >= 1500:
-            flechaRect.x = -300
 
-        #Movimento Bala
-        balaRect.x -=5
-        if balaRect.x < -600:
-            balaRect.x = 1300
+        #Movimento bala_LEFT
+        bala_LEFT_Rect.x += 5
+        if bala_LEFT_Rect.x >= 1500:
+            bala_LEFT_Rect.x = -300
+
+        #Movimento bala_DOWN
+        bala_DOWN_Rect.y += 5
+        if bala_DOWN_Rect.y >= 1900:
+            bala_DOWN_Rect.y = -200
+        
+        #Movimento bala_UPSIDE
+        bala_UPSIDE_Rect.y -=5
+        if bala_UPSIDE_Rect.y <= -1900:
+            bala_UPSIDE_Rect.y = 1500
+
+        #Movimento bala_RIGHT
+        bala_RIGHT_Rect.x -=5
+        if bala_RIGHT_Rect.x <= -600:
+            bala_RIGHT_Rect.x = 1300
+
+
 
         #Pontuação
         pontuação += 0.1
@@ -129,45 +154,50 @@ while True:
         screen.blit(textSurface, (500,50))
         textVidas = fonte_vida.render("Vidas %d" % vidas, False, "White")
         screen.blit(textVidas,(500,150))
-        if vidas == 0:
-            fim_de_jogo = True
-            # text_game_over = fonte_over.render("GAME OVER", False, "Red")
-            # screen.blit(text_game_over, (340, 300))
+        
         
     
-        #Posição relativa
-        # offset2 = (balaRect.x - bonecoRect.x, balaRect.y - bonecoRect.y)
-        offset2 = (balaRect.x - boneco.rect.x, balaRect.y - boneco.rect.y)
+        #Colisão
+        offset_DOWN =(bala_DOWN_Rect.x - boneco.rect.x, bala_DOWN_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_DOWN_mask,offset_DOWN):
+            print("Bateu!!!")
+            vidas-=1
+            bala_DOWN_Rect.y = -600
+            pygame.mixer.music.load("Sons/hit.wav")  
+            pygame.mixer.music.play(1)  
 
-        if boneco_mask.overlap(bala_mask,offset2):
-            print("COLIDIU!!!")
+        offset_UPSIDE = (bala_DOWN_Rect.x - boneco.rect.x, bala_UPSIDE_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_UPSIDE_mask,offset_UPSIDE):
+            print("Bateu!!!")
+            vidas-=1
+            bala_UPSIDE_Rect.y = 1500
+            pygame.mixer.music.load("Sons/hit.wav")  
+            pygame.mixer.music.play(1)  
+
+        offset_RIGHT = (bala_RIGHT_Rect.x - boneco.rect.x, bala_RIGHT_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_RIGHT_mask,offset_RIGHT):
+            print("Bateu!!!")
             vidas -=1
-            balaRect.x = 1300
+            bala_RIGHT_Rect.x = 1300
+            pygame.mixer.music.load("Sons/hit.wav")  
+            pygame.mixer.music.play(1)  
 
-        offset = (flechaRect.x - boneco.rect.x, flechaRect.y - boneco.rect.y)
-
-
-        if boneco_mask.overlap(flecha_mask, offset):
-            print("ColidiUUUU")
+        offset_LEFT = (bala_LEFT_Rect.x - boneco.rect.x, bala_LEFT_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_LEFT_mask, offset_LEFT):
+            print("Bateu!!!")
             vidas -=1
-            flechaRect.x = -300
+            bala_LEFT_Rect.x = -300
+            pygame.mixer.music.load("Sons/hit.wav")  
+            pygame.mixer.music.play(1)  
 
-
-        #Colisão por retângulos(Pode não funcionar)
-        #if bonecoRect.colliderect(flechaRect):
-        #print("Colidiu, AI!!")
-        #flechaRect.x = -300
-
-
-
-        #Serve para eu visulizar os "Retângulos"
-        # pygame.draw.rect(screen, (255,0,0), bonecoRect, 2)
-        # pygame.draw.rect(screen, (0,255,0), flechaRect, 2)
-        # pygame.draw.rect(screen, (255,0,0), balaRect, 2)
+        if vidas <= 0:
+            estado_do_jogo = "game_over"
         
-        #Movimento do Jogador
+        #Movimentos do Jogador
         key = pygame.key.get_pressed()
         if key[pygame.K_SPACE] and boneco.rect.y >= 355:
+            gravidadedoboneco = -15
+        if key[pygame.K_w] and boneco.rect.y >=355:
             gravidadedoboneco = -15
 
         gravidadedoboneco += 0.5
@@ -176,14 +206,6 @@ while True:
         if boneco.rect.y > 355:
             boneco.rect.y = 355
             gravidadedoboneco = 0
-      
-        # if key[pygame.K_RIGHT] or key[pygame.K_d]:
-        #     boneco.rect.x += 5
-        #     boneco.RIGHT_KEY, boneco.FACING_RIGHT = True, True
-
-        # if key[pygame.K_LEFT] or key[pygame.K_a]:
-        #     boneco.rect.x -= 5
-        #     boneco.LEFT_KEY, boneco.FACING_LEFT = True, True
 
         if key[pygame.K_RIGHT] or key[pygame.K_d]:
             boneco.rect.x += 5
@@ -202,7 +224,28 @@ while True:
             boneco.RIGHT_KEY = False
             boneco.LEFT_KEY = False
 
+    elif estado_do_jogo == "game_over":
+        desenha_game_over(screen)
+
+        if not som_game_over_tocado: 
+            pygame.mixer.music.load("Sons/game_over.wav")
+            pygame.mixer.music.play(1)
+            som_game_over_tocado = True
         
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    # Reiniciar o jogo
+                    vidas = 3
+                    pontuação = 0
+                    boneco.rect.x, boneco.rect.y = 601, 498
+                    bala_RIGHT_Rect.x = 1300
+                    estado_do_jogo = "jogo"
 
     #Atualizando a tela a cada mudança e fps=60
     pygame.display.update()

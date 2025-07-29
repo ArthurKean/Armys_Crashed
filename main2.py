@@ -8,7 +8,6 @@ pygame.mixer.music.load("Sons/music.wav")
 pygame.mixer.music.play(-1)  
 som_colisao = pygame.mixer.Sound("Sons/hit.wav")
 
-
 #Definir o nome do jogo!
 pygame.display.set_caption("Armys Crashed")
 
@@ -31,7 +30,7 @@ tela_game_over.fill((0, 0, 0))  # fundo escuro com transparência
 mostrar_game_over = fonte_game_over.render("GAME OVER", True, "Red")
 aviso_game_over = fonte_aviso_game_over.render("Pressione R para reiniciar", True, "White")
 som_game_over_tocado = False
-estado_anterior = None
+estado_do_jogo = None
 
 def desenha_game_over(screen):
     screen.blit(tela_game_over, (0, 0))
@@ -69,11 +68,13 @@ bala_UPSIDE1 = pygame.transform.scale(bala_UPSIDE1,(50,90))
 bala_DOWN = pygame.transform.scale(bala_DOWN,(50,90))
 bala_DOWN1 = pygame.transform.scale(bala_DOWN1,(50,90))
 
+
 #Personagem
 boneco = Player()
 chao_y = 410
 
-#Criando os retângulos
+
+#Criando os Retângulos
 bala_RIGHT_Rect = bala_RIGHT.get_rect(bottomright = (1000,600))
 bala_RIGHT1_Rect = bala_RIGHT1.get_rect(bottomright = (2000,900))
 bala_LEFT_Rect = bala_LEFT.get_rect(bottomright = (1300,300))
@@ -84,6 +85,7 @@ bala_DOWN_Rect = bala_DOWN.get_rect(midtop = (300,-300))
 bala_DOWN1_Rect = bala_DOWN1.get_rect(midtop = (750,-600))
 
 #Colisão precisa( Formando mascara, descarta os tranparentes)
+# boneco_mask = pygame.mask.from_surface(boneco)
 bala_RIGHT_mask = pygame.mask.from_surface(bala_RIGHT)
 bala_RIGHT1_mask = pygame.mask.from_surface(bala_RIGHT1)
 bala_LEFT_mask = pygame.mask.from_surface(bala_LEFT)
@@ -136,75 +138,133 @@ while True:
         screen.blit(fundo,(0,0))
         boneco.draw(screen)
         screen.blit(bala_LEFT,bala_LEFT_Rect)
+        screen.blit(bala_LEFT1,bala_LEFT1_Rect)
         screen.blit(bala_RIGHT,bala_RIGHT_Rect)
+        screen.blit(bala_RIGHT1,bala_RIGHT1_Rect)
         screen.blit(bala_UPSIDE,bala_UPSIDE_Rect)
+        screen.blit(bala_UPSIDE1,bala_UPSIDE1_Rect)
         screen.blit(bala_DOWN,bala_DOWN_Rect)
+        screen.blit(bala_DOWN1,bala_DOWN1_Rect)
 
 
         #Movimento bala_LEFT
         bala_LEFT_Rect.x += 5
-        if bala_LEFT_Rect.x >= 1500:
-            bala_LEFT_Rect.x = -300
+        if bala_LEFT_Rect.x >= 1920:
+            bala_LEFT_Rect.x = -1200
+              
+
+        bala_LEFT1_Rect.x += 5
+        if bala_LEFT1_Rect.x >= 2300:
+            bala_LEFT1_Rect.x = -800
+               
 
         #Movimento bala_DOWN
         bala_DOWN_Rect.y += 5
         if bala_DOWN_Rect.y >= 1900:
             bala_DOWN_Rect.y = -200
-        
+            
+
+        bala_DOWN1_Rect.y += 5
+        if bala_DOWN1_Rect.y >= 2100:
+            bala_DOWN1_Rect.y = -500
+             
+   
         #Movimento bala_UPSIDE
         bala_UPSIDE_Rect.y -=5
         if bala_UPSIDE_Rect.y <= -1900:
             bala_UPSIDE_Rect.y = 1500
+              
 
+        bala_UPSIDE1_Rect.y -=5
+        if bala_UPSIDE1_Rect.y <= -2100:
+            bala_UPSIDE1_Rect.y = 1700
+             
+            
         #Movimento bala_RIGHT
         bala_RIGHT_Rect.x -=5
         if bala_RIGHT_Rect.x <= -600:
             bala_RIGHT_Rect.x = 1300
+              
+
+        bala_RIGHT1_Rect.x -=5
+        if bala_RIGHT1_Rect.x <= -6000:
+            bala_RIGHT1_Rect.x = 1700
+             
 
 
 
         #Pontuação
         pontuação += 0.1
-        textSurface = fonte_pontuação.render("PONTUAÇÃO: %d" % pontuação, False, "White")
+        textSurface = fonte_pontuação.render(f"PONTUAÇÃO: {int(pontuação)}", False, "White")
         screen.blit(textSurface, (500,50))
-        textVidas = fonte_vida.render("Vidas %d" % vidas, False, "White")
-        screen.blit(textVidas,(500,150))
+        textVidas = fonte_vida.render(f"Vidas {vidas}    |", False, "White")
+        screen.blit(textVidas,(300,50))
         
+       
         
     
         #Colisão
-        offset_DOWN =(bala_DOWN_Rect.x - boneco.rect.x, bala_DOWN_Rect.y - boneco.rect.y)
-        if boneco_mask.overlap(bala_DOWN_mask,offset_DOWN):
-            print("Bateu!!!")
-            vidas-=1
-            bala_DOWN_Rect.y = -600
-            som_colisao.play()
-
         offset_UPSIDE = (bala_UPSIDE_Rect.x - boneco.rect.x, bala_UPSIDE_Rect.y - boneco.rect.y)
         if boneco_mask.overlap(bala_UPSIDE_mask,offset_UPSIDE):
             print("Bateu!!!")
             vidas-=1
             bala_UPSIDE_Rect.y = 1500
-            som_colisao.play()
+            som_colisao.play()  
+
+        offset_UPSIDE1 = (bala_UPSIDE1_Rect.x - boneco.rect.x, bala_UPSIDE1_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_UPSIDE1_mask,offset_UPSIDE1):
+            print("Bateu!!!")
+            vidas-=1
+            bala_UPSIDE1_Rect.y = 1700
+            som_colisao.play()  
+
+        offset_DOWN =(bala_DOWN_Rect.x - boneco.rect.x, bala_DOWN_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_DOWN_mask,offset_DOWN):
+            print("Bateu!!!")
+            vidas -=1
+            bala_DOWN_Rect.y = -200
+            som_colisao.play()  
+
+        offset_DOWN1 =(bala_DOWN1_Rect.x - boneco.rect.x, bala_DOWN1_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_DOWN1_mask,offset_DOWN1):
+            print("Bateu!!!")
+            vidas -=1
+            bala_DOWN1_Rect.y = -500
+            som_colisao.play()  
 
         offset_RIGHT = (bala_RIGHT_Rect.x - boneco.rect.x, bala_RIGHT_Rect.y - boneco.rect.y)
         if boneco_mask.overlap(bala_RIGHT_mask,offset_RIGHT):
             print("Bateu!!!")
             vidas -=1
             bala_RIGHT_Rect.x = 1300
-            som_colisao.play() 
+            som_colisao.play()  
+
+        offset_RIGHT1 = (bala_RIGHT1_Rect.x - boneco.rect.x, bala_RIGHT1_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_RIGHT1_mask,offset_RIGHT1):
+            print("Bateu!!!")
+            vidas -=1
+            bala_RIGHT1_Rect.x = 1600
+            som_colisao.play()  
 
         offset_LEFT = (bala_LEFT_Rect.x - boneco.rect.x, bala_LEFT_Rect.y - boneco.rect.y)
         if boneco_mask.overlap(bala_LEFT_mask, offset_LEFT):
             print("Bateu!!!")
             vidas -=1
             bala_LEFT_Rect.x = -300
-            som_colisao.play() 
+            som_colisao.play()  
+
+        offset_LEFT1 = (bala_LEFT1_Rect.x - boneco.rect.x, bala_LEFT1_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_LEFT1_mask, offset_LEFT1):
+            print("Bateu!!")
+            vidas -=1
+            bala_LEFT1_Rect.x = -500
+            som_colisao.play()  
 
         if vidas <= 0:
             estado_do_jogo = "game_over"
+            pygame.mixer.music.stop()
         
-        #MOVIMENTOS DO JOGADORES
+        #Movimento do Jogador e Gravidade
         key = pygame.key.get_pressed()
         if key[pygame.K_SPACE] and boneco.rect.y >= 355:
             gravidadedoboneco = -15
@@ -242,7 +302,6 @@ while True:
             pygame.mixer.music.load("Sons/game_over.wav")
             pygame.mixer.music.play(1)
             som_game_over_tocado = True
-        
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -251,12 +310,14 @@ while True:
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    # Reiniciar o jogo
+
                     vidas = 3
                     pontuação = 0
                     boneco.rect.x, boneco.rect.y = 601, 498
                     bala_RIGHT_Rect.x = 1300
                     estado_do_jogo = "jogo"
+                    pygame.mixer.music.load("Sons/music.wav")
+                    pygame.mixer.music.play(-1)
 
     #Atualizando a tela a cada mudança e fps=60
     pygame.display.update()
