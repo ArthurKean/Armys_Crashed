@@ -4,8 +4,10 @@ from Player import Player
 #Inicio e Musica
 pygame.init()
 pygame.mixer.init()
-# pygame.mixer.music.load("Sons/music.wav")  
-# pygame.mixer.music.play(-1)  
+pygame.mixer.music.load("Sons/music.wav")  
+pygame.mixer.music.play(-1)  
+som_colisao = pygame.mixer.Sound("Sons/hit.wav")
+
 
 #Definir o nome do jogo!
 pygame.display.set_caption("Armys Crashed")
@@ -42,9 +44,13 @@ fundo = pygame.image.load("Imagens/Fundo_8.png").convert_alpha()
 boneco = pygame.image.load("Imagens/Hero.png").convert_alpha()
 fundo_menu = pygame.image.load("Imagens/Fundo_blur.png").convert_alpha()
 bala_RIGHT = pygame.image.load("Imagens/Assets_Balas/BALA_LEFT.png").convert_alpha()
+bala_RIGHT1 = pygame.image.load("Imagens/Assets_Balas/BALA_LEFT1.png").convert_alpha()
 bala_LEFT = pygame.image.load("Imagens/Assets_Balas/BALA_RIGHT.png").convert_alpha()
+bala_LEFT1 = pygame.image.load("Imagens/Assets_Balas/BALA_RIGHT1.png").convert_alpha()
 bala_UPSIDE = pygame.image.load("Imagens/Assets_Balas/BALA_UPSIDE.png").convert_alpha()
+bala_UPSIDE1 = pygame.image.load("Imagens/Assets_Balas/BALA_UPSIDE1.png").convert_alpha()
 bala_DOWN = pygame.image.load("Imagens/Assets_Balas/BALA_DOWN.png").convert_alpha()
+bala_DOWN1 = pygame.image.load("Imagens/Assets_Balas/BALA_DOWN1.png").convert_alpha()
 
 #Pontuação
 pontuação = 0
@@ -55,28 +61,37 @@ fundo = pygame.transform.scale(fundo,(1280,720))
 boneco = pygame.transform.scale(boneco,(180,180))
 fundo_menu = pygame.transform.scale(fundo_menu,(1280,720))
 bala_RIGHT = pygame.transform.scale(bala_RIGHT,(90,50))
+bala_RIGHT1 = pygame.transform.scale(bala_RIGHT1,(90,50))
 bala_LEFT = pygame.transform.scale(bala_LEFT,(90,50))
+bala_LEFT1 = pygame.transform.scale(bala_LEFT1,(90,50))
 bala_UPSIDE = pygame.transform.scale(bala_UPSIDE,(50,90))
+bala_UPSIDE1 = pygame.transform.scale(bala_UPSIDE1,(50,90))
 bala_DOWN = pygame.transform.scale(bala_DOWN,(50,90))
-
+bala_DOWN1 = pygame.transform.scale(bala_DOWN1,(50,90))
 
 #Personagem
 boneco = Player()
 chao_y = 410
 
-
-#Criando os Retângulos
-bala_RIGHT_Rect = bala_RIGHT.get_rect(bottomright = (1300,600))
+#Criando os retângulos
+bala_RIGHT_Rect = bala_RIGHT.get_rect(bottomright = (1000,600))
+bala_RIGHT1_Rect = bala_RIGHT1.get_rect(bottomright = (2000,900))
 bala_LEFT_Rect = bala_LEFT.get_rect(bottomright = (1300,300))
+bala_LEFT1_Rect = bala_LEFT1.get_rect(bottomright = (2000,500))
 bala_UPSIDE_Rect = bala_UPSIDE.get_rect(midbottom = (1100,1500))
+bala_UPSIDE1_Rect = bala_UPSIDE1.get_rect(midbottom = (1500,2000))
 bala_DOWN_Rect = bala_DOWN.get_rect(midtop = (300,-300))
+bala_DOWN1_Rect = bala_DOWN1.get_rect(midtop = (750,-600))
 
 #Colisão precisa( Formando mascara, descarta os tranparentes)
-# boneco_mask = pygame.mask.from_surface(boneco)
 bala_RIGHT_mask = pygame.mask.from_surface(bala_RIGHT)
+bala_RIGHT1_mask = pygame.mask.from_surface(bala_RIGHT1)
 bala_LEFT_mask = pygame.mask.from_surface(bala_LEFT)
+bala_LEFT1_mask = pygame.mask.from_surface(bala_LEFT1)
 bala_UPSIDE_mask = pygame.mask.from_surface(bala_UPSIDE)
+bala_UPSIDE1_mask = pygame.mask.from_surface(bala_UPSIDE1)
 bala_DOWN_mask = pygame.mask.from_surface(bala_DOWN)
+bala_DOWN1_mask = pygame.mask.from_surface(bala_DOWN1)
 boneco_mask = pygame.mask.from_surface(boneco.current_image)
 
 #Gravidade e estado inicial
@@ -163,37 +178,33 @@ while True:
             print("Bateu!!!")
             vidas-=1
             bala_DOWN_Rect.y = -600
-            pygame.mixer.music.load("Sons/hit.wav")  
-            pygame.mixer.music.play(1)  
+            som_colisao.play()
 
-        offset_UPSIDE = (bala_DOWN_Rect.x - boneco.rect.x, bala_UPSIDE_Rect.y - boneco.rect.y)
+        offset_UPSIDE = (bala_UPSIDE_Rect.x - boneco.rect.x, bala_UPSIDE_Rect.y - boneco.rect.y)
         if boneco_mask.overlap(bala_UPSIDE_mask,offset_UPSIDE):
             print("Bateu!!!")
             vidas-=1
             bala_UPSIDE_Rect.y = 1500
-            pygame.mixer.music.load("Sons/hit.wav")  
-            pygame.mixer.music.play(1)  
+            som_colisao.play()
 
         offset_RIGHT = (bala_RIGHT_Rect.x - boneco.rect.x, bala_RIGHT_Rect.y - boneco.rect.y)
         if boneco_mask.overlap(bala_RIGHT_mask,offset_RIGHT):
             print("Bateu!!!")
             vidas -=1
             bala_RIGHT_Rect.x = 1300
-            pygame.mixer.music.load("Sons/hit.wav")  
-            pygame.mixer.music.play(1)  
+            som_colisao.play() 
 
         offset_LEFT = (bala_LEFT_Rect.x - boneco.rect.x, bala_LEFT_Rect.y - boneco.rect.y)
         if boneco_mask.overlap(bala_LEFT_mask, offset_LEFT):
             print("Bateu!!!")
             vidas -=1
             bala_LEFT_Rect.x = -300
-            pygame.mixer.music.load("Sons/hit.wav")  
-            pygame.mixer.music.play(1)  
+            som_colisao.play() 
 
         if vidas <= 0:
             estado_do_jogo = "game_over"
         
-        #Movimentos do Jogador
+        #MOVIMENTOS DO JOGADORES
         key = pygame.key.get_pressed()
         if key[pygame.K_SPACE] and boneco.rect.y >= 355:
             gravidadedoboneco = -15
