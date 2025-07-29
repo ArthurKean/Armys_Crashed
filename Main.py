@@ -1,14 +1,17 @@
 import pygame
 from Player import Player
 
+
 pygame.init()
+
+#Definir o nome do jogo!
 pygame.display.set_caption("Armys Crashed")
 
-#Formar a Janela e Marcar o FpS
+#Formar a Janela e Marcar o FpS!
 screen = pygame.display.set_mode((1280,720))    
 Clock = pygame.time.Clock()
 
-# Fontes para menu
+# Fontes para o código
 fonte_titulo = pygame.font.SysFont(None, 150)
 fonte_botao = pygame.font.SysFont(None, 37)
 fonte_pontuação = pygame.font.SysFont(None, 50)
@@ -16,8 +19,7 @@ fonte_vida = pygame.font.SysFont(None,50)
 fonte_game_over = pygame.font.SysFont(None,150)
 fonte_aviso_game_over = pygame.font.SysFont(None,100)
 
-#Fim de Jogo
-
+# Códigos para o Game Over
 fim_de_jogo = False
 tela_game_over = pygame.Surface((1280, 720), pygame.SRCALPHA)
 tela_game_over.fill((0, 0, 0))  # fundo escuro com transparência
@@ -34,8 +36,8 @@ surface = pygame.Surface((200,200))
 fundo = pygame.image.load("Imagens/Fundo_8.png").convert_alpha()
 boneco = pygame.image.load("Imagens/Hero.png").convert_alpha()
 fundo_menu = pygame.image.load("Imagens/Fundo_blur.png").convert_alpha()
-bala_RIGHT = pygame.image.load("Imagens/Assets_Balas/BALA_RIGHT.png").convert_alpha()
-bala_LEFT = pygame.image.load("Imagens/Assets_Balas/BALA_LEFT.png").convert_alpha()
+bala_RIGHT = pygame.image.load("Imagens/Assets_Balas/BALA_LEFT.png").convert_alpha()
+bala_LEFT = pygame.image.load("Imagens/Assets_Balas/BALA_RIGHT.png").convert_alpha()
 bala_UPSIDE = pygame.image.load("Imagens/Assets_Balas/BALA_UPSIDE.png").convert_alpha()
 bala_DOWN = pygame.image.load("Imagens/Assets_Balas/BALA_DOWN.png").convert_alpha()
 
@@ -47,6 +49,10 @@ vidas = 3
 fundo = pygame.transform.scale(fundo,(1280,720))
 boneco = pygame.transform.scale(boneco,(180,180))
 fundo_menu = pygame.transform.scale(fundo_menu,(1280,720))
+bala_RIGHT = pygame.transform.scale(bala_RIGHT,(90,50))
+bala_LEFT = pygame.transform.scale(bala_LEFT,(90,50))
+bala_UPSIDE = pygame.transform.scale(bala_UPSIDE,(50,90))
+bala_DOWN = pygame.transform.scale(bala_DOWN,(50,90))
 
 
 #Personagem
@@ -55,10 +61,10 @@ chao_y = 410
 
 
 #Criando os Retângulos
-bala_RIGHT_Rect = bala_RIGHT.get_rect(bottomright = (1300,300))
+bala_RIGHT_Rect = bala_RIGHT.get_rect(bottomright = (1300,600))
 bala_LEFT_Rect = bala_LEFT.get_rect(bottomright = (1300,300))
-bala_UPSIDE_Rect = bala_UPSIDE.get_rect(bottomright = (1300,300))
-bala_DOWN_Rect = bala_DOWN.get_rect(bottomright = (1300,300))
+bala_UPSIDE_Rect = bala_UPSIDE.get_rect(midbottom = (1100,1500))
+bala_DOWN_Rect = bala_DOWN.get_rect(midtop = (300,-300))
 
 #Colisão precisa( Formando mascara, descarta os tranparentes)
 # boneco_mask = pygame.mask.from_surface(boneco)
@@ -102,7 +108,7 @@ while True:
 
     elif estado_do_jogo == "jogo":
 
-        #JOGO
+        
         #Adicionar elementos na tela
         #Direita = aumenta o x
         #Baixo = aumenta o y
@@ -115,12 +121,22 @@ while True:
         screen.blit(bala_DOWN,bala_DOWN_Rect)
 
 
-        #Movimento BALA_LEFT
+        #Movimento bala_LEFT
         bala_LEFT_Rect.x += 5
         if bala_LEFT_Rect.x >= 1500:
             bala_LEFT_Rect.x = -300
 
-        #Movimento Bala
+        #Movimento bala_DOWN
+        bala_DOWN_Rect.y += 5
+        if bala_DOWN_Rect.y >= 1900:
+            bala_DOWN_Rect.y = -200
+        
+        #Movimento bala_UPSIDE
+        bala_UPSIDE_Rect.y -=5
+        if bala_UPSIDE_Rect.y <= -1900:
+            bala_UPSIDE_Rect.y = 1500
+
+        #Movimento bala_RIGHT
         bala_RIGHT_Rect.x -=5
         if bala_RIGHT_Rect.x <= -600:
             bala_RIGHT_Rect.x = 1300
@@ -136,31 +152,24 @@ while True:
         
         
     
-        #Posição relativa
-        # offset2 = (balaRect.x - bonecoRect.x, balaRect.y - bonecoRect.y)
-        offset2 = (bala_RIGHT_Rect.x - boneco.rect.x, bala_RIGHT_Rect.y - boneco.rect.y)
-
-        if boneco_mask.overlap(bala_RIGHT_mask,offset2):
+        #Colisão
+        offset_DOWN =(bala_DOWN_Rect.x - boneco.rect.x, bala_DOWN_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_DOWN_mask,offset_DOWN):
+            
+        offset_RIGHT = (bala_RIGHT_Rect.x - boneco.rect.x, bala_RIGHT_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_RIGHT_mask,offset_RIGHT):
             print("COLIDIU!!!")
             vidas -=1
             bala_RIGHT_Rect.x = 1300
 
-        offset = (bala_LEFT_Rect.x - boneco.rect.x, bala_LEFT_Rect.y - boneco.rect.y)
-
-
-        if boneco_mask.overlap(bala_LEFT_mask, offset):
+        offset_LEFT = (bala_LEFT_Rect.x - boneco.rect.x, bala_LEFT_Rect.y - boneco.rect.y)
+        if boneco_mask.overlap(bala_LEFT_mask, offset_LEFT):
             print("ColidiUUUU")
             vidas -=1
             bala_LEFT_Rect.x = -300
 
         if vidas <= 0:
             estado_do_jogo = "game_over"
-        
-
-        #Serve para eu visulizar os "Retângulos"
-        # pygame.draw.rect(screen, (255,0,0), bonecoRect, 2)
-        # pygame.draw.rect(screen, (0,255,0), flechaRect, 2)
-        # pygame.draw.rect(screen, (255,0,0), balaRect, 2)
         
         #Movimento do Jogador
         key = pygame.key.get_pressed()
@@ -205,7 +214,7 @@ while True:
                     vidas = 3
                     pontuação = 0
                     boneco.rect.x, boneco.rect.y = 601, 498
-                    balaRect.x = 1300
+                    bala_RIGHT_Rect.x = 1300
                     estado_do_jogo = "jogo"
 
     #Atualizando a tela a cada mudança e fps=60

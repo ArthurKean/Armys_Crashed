@@ -13,6 +13,8 @@ class Player(pygame.sprite.Sprite):
         self.velocity = 0
         self.state = "idle"
         self.current_image = self.idle_frames_left[0]
+        
+  
 
     def update(self):
         self.velocity = 0
@@ -35,7 +37,7 @@ class Player(pygame.sprite.Sprite):
                 self.current_frame = (self.current_frame + 1) % len(self.idle_frames_right)
                 if self.FACING_LEFT:
                     self.current_image = self.idle_frames_left[self.current_frame]
-                elif not self.FACING_RIGHT:
+                elif  self.FACING_RIGHT:
                     self.current_image = self.idle_frames_right[self.current_frame]
         else:
             if now - self.last_update > 100:
@@ -74,6 +76,7 @@ class Player(pygame.sprite.Sprite):
                                     pygame.image.load("Imagens/Boneco_Assets/Run-hero01_006.png").convert_alpha(),
                                     pygame.image.load("Imagens/Boneco_Assets/Run-hero01_007.png").convert_alpha()
                                     ]
+        
         self.idle_frames_left = []
         for frame in self.idle_frames_right:
             self.idle_frames_left.append(pygame.transform.flip(frame,True,False))
