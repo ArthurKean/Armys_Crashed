@@ -111,6 +111,18 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             quit()
+        if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+
+                    vidas = 3
+                    pontuação = 0
+                    boneco.rect.x, boneco.rect.y = 601, 498
+                    bala_RIGHT_Rect.x = 1300
+                    estado_do_jogo = "jogo"
+                    pygame.mixer.music.load("Sons/music.wav")
+                    pygame.mixer.music.play(-1)
+        
+        
 
     #Serve para iniciar o menu
     if estado_do_jogo == "menu":
@@ -303,21 +315,9 @@ while True:
             pygame.mixer.music.play(1)
             som_game_over_tocado = True
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+        
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
-
-                    vidas = 3
-                    pontuação = 0
-                    boneco.rect.x, boneco.rect.y = 601, 498
-                    bala_RIGHT_Rect.x = 1300
-                    estado_do_jogo = "jogo"
-                    pygame.mixer.music.load("Sons/music.wav")
-                    pygame.mixer.music.play(-1)
+        
 
     #Atualizando a tela a cada mudança e fps=60
     pygame.display.update()
