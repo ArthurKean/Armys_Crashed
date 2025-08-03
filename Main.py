@@ -4,9 +4,11 @@ from Player import Player
 #Inicio e Musica
 pygame.init()
 pygame.mixer.init()
+pygame.mixer.music.set_volume(0.3)
 pygame.mixer.music.load("Sons/music.wav")  
 pygame.mixer.music.play(-1)  
 som_colisao = pygame.mixer.Sound("Sons/hit.wav")
+
 
 #Definir o nome do jogo!
 pygame.display.set_caption("Armys Crashed")
@@ -32,6 +34,7 @@ aviso_game_over = fonte_aviso_game_over.render("Pressione R para reiniciar", Tru
 som_game_over_tocado = False
 estado_do_jogo = None
 
+#Adciona os componentes de game over na tela
 def desenha_game_over(screen):
     screen.blit(tela_game_over, (0, 0))
     screen.blit(mostrar_game_over, (310, 170))
@@ -40,7 +43,6 @@ def desenha_game_over(screen):
 # Surface (Objetos da tela)
 surface = pygame.Surface((200,200))
 fundo = pygame.image.load("Imagens/Fundo_8.png").convert_alpha()
-# boneco = pygame.image.load("Imagens/Hero.png").convert_alpha()
 fundo_menu = pygame.image.load("Imagens/Fundo_blur.png").convert_alpha()
 bala_RIGHT = pygame.image.load("Imagens/Assets_Balas/BALA_LEFT.png").convert_alpha()
 bala_RIGHT1 = pygame.image.load("Imagens/Assets_Balas/BALA_LEFT1.png").convert_alpha()
@@ -51,13 +53,12 @@ bala_UPSIDE1 = pygame.image.load("Imagens/Assets_Balas/BALA_UPSIDE1.png").conver
 bala_DOWN = pygame.image.load("Imagens/Assets_Balas/BALA_DOWN.png").convert_alpha()
 bala_DOWN1 = pygame.image.load("Imagens/Assets_Balas/BALA_DOWN1.png").convert_alpha()
 
-#Pontuação
+#Pontuação e Vidas
 pontuação = 0
 vidas = 3
 
 #Convertendo o tamanho da imagem 
 fundo = pygame.transform.scale(fundo,(1280,720))
-# boneco = pygame.transform.scale(boneco,(180,180))
 fundo_menu = pygame.transform.scale(fundo_menu,(1280,720))
 bala_RIGHT = pygame.transform.scale(bala_RIGHT,(90,50))
 bala_RIGHT1 = pygame.transform.scale(bala_RIGHT1,(90,50))
@@ -85,7 +86,6 @@ bala_DOWN_Rect = bala_DOWN.get_rect(midtop = (300,-300))
 bala_DOWN1_Rect = bala_DOWN1.get_rect(midtop = (750,-600))
 
 #Colisão precisa( Formando mascara, descarta os tranparentes)
-# boneco_mask = pygame.mask.from_surface(boneco)
 bala_RIGHT_mask = pygame.mask.from_surface(bala_RIGHT)
 bala_RIGHT1_mask = pygame.mask.from_surface(bala_RIGHT1)
 bala_LEFT_mask = pygame.mask.from_surface(bala_LEFT)
@@ -106,7 +106,7 @@ while True:
     click = pygame.mouse.get_pressed()
 
     
-    #Serve para conseguir parar o jogo
+    #Serve para conseguir parar o jogo e reinicair
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -121,8 +121,6 @@ while True:
                     estado_do_jogo = "jogo"
                     pygame.mixer.music.load("Sons/music.wav")
                     pygame.mixer.music.play(-1)
-        
-        
 
     #Serve para iniciar o menu
     if estado_do_jogo == "menu":
@@ -131,12 +129,14 @@ while True:
     #Escrita na tela /Desenha o texto na tela 
     titulo = fonte_titulo.render("Armys Crashed", True, (255,255,255))
     screen.blit(titulo, (1280//2 - titulo.get_width()//2, 150))
-
+    
+    #Adciona o botao de start do jogo
     botao_rect = pygame.Rect(540, 350, 200, 80)
     pygame.draw.rect(screen, (0,128,0), botao_rect)
     texto_botao = fonte_botao.render("JOGAR", True, (255,255,255))
     screen.blit(texto_botao, (botao_rect.x + 60, botao_rect.y + 20))
 
+    #Define o estado do jogo caso o botao seja pressionado
     if botao_rect.collidepoint(mouse) and click[0]:
         estado_do_jogo = "jogo"
 
@@ -144,8 +144,6 @@ while True:
 
         
         #Adicionar elementos na tela
-        #Direita = aumenta o x
-        #Baixo = aumenta o y
         screen.blit(surface,(100,100))
         screen.blit(fundo,(0,0))
         boneco.draw(screen)
@@ -205,7 +203,7 @@ while True:
 
 
 
-        #Pontuação
+        #Pontuação e Vidas na tela
         pontuação += 0.1
         textSurface = fonte_pontuação.render(f"PONTUAÇÃO: {int(pontuação)}", False, "White")
         screen.blit(textSurface, (500,50))
@@ -306,6 +304,7 @@ while True:
         else:
             boneco.RIGHT_KEY = False
             boneco.LEFT_KEY = False
+            
     #Estado de jogo game over
     elif estado_do_jogo == "game_over":
         desenha_game_over(screen)
@@ -315,9 +314,21 @@ while True:
             pygame.mixer.music.play(1)
             som_game_over_tocado = True
 
-        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
 
-        
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+
+                    vidas = 3
+                    pontuação = 0
+                    boneco.rect.x, boneco.rect.y = 601, 498
+                    bala_RIGHT_Rect.x = 1300
+                    estado_do_jogo = "jogo"
+                    pygame.mixer.music.load("Sons/music.wav")
+                    pygame.mixer.music.play(-1)
 
     #Atualizando a tela a cada mudança e fps=60
     pygame.display.update()
